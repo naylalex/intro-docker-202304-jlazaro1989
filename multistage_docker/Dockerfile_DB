@@ -1,5 +1,4 @@
+#db                   latest    46b52a38c9ad   2 days ago      379MB
 FROM postgres
-
 COPY words.sql /docker-entrypoint-initdb.d/
-
 ENV POSTGRES_HOST_AUTH_METHOD=trust
