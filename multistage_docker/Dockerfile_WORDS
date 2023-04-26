@@ -1,0 +1,24 @@
+# words-qa             latest    f8aa9741b321   2 days ago    856MB
+FROM ubuntu
+COPY pom.xml .
+COPY src src
+RUN apt-get update
+RUN apt-get install -y maven openjdk-8-jdk
+RUN mvn verify
+CMD ["mvn", "verify"]
+CMD ["java","-Xmx8m", "-Xms8m", "-jar", "./target/words.jar"]
+EXPOSE 8080
+
+#words-prd            latest    a79df0fad838   3 minutes ago   105MB
+FROM maven:3.6.3-jdk-8 as build
+WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline
+COPY . .
+RUN mvn clean package -DskipTests
+	
+FROM openjdk:8-jdk-alpine
+WORKDIR /app
+COPY --from=build /app/target/words.jar .
+CMD ["java", "-Xmx8m", "-Xms8m", "-jar", "words.jar"]
+

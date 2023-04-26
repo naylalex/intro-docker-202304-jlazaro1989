@@ -1,0 +1,20 @@
+#web-qa               latest    5f53d41e089f   2 days ago    847MB
+FROM golang
+COPY dispatcher.go .
+COPY static static
+RUN go build dispatcher.go
+CMD ["./dispatcher"]
+EXPOSE 80
+
+#web-prd              latest    79bcdd694fcd   4 hours ago   14.4MB
+FROM golang:latest AS build
+WORKDIR /go/src/app
+COPY . .
+RUN go mod init app
+RUN go mod download 
+RUN CGO_ENABLED=0 go build -o /go/bin/app dispatcher.go
+	
+FROM alpine:latest
+COPY --from=build /go/bin/app /app
+ENTRYPOINT ["/app"]
+EXPOSE 80
